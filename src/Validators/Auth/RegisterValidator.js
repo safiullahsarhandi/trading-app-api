@@ -1,22 +1,20 @@
-let Validator = require('validatorjs');
 let pathAlias = require('path-alias');
 let {apiValidationErrors} = pathAlias('src/Utils/apiHelpers');
-require('../../Utils/CustomValidations');
+let Validator = require('../../Utils/CustomValidations');
 
-module.exports = (req,res,next)=>{
+module.exports = async (req,res,next)=>{   
     
-    let validation = new Validator(req.body, {
+	await Validator(req.body, {
         name : 'required',
-		username : 'required|unique:User',
-		email : 'required|email|unique:User',
+		username : 'required|unique:User,username',
+		email : 'required|email|unique:User,email',
 		password : 'required'
-	});
-
-	if(validation.fails()){
-
-	let data = apiValidationErrors(validation.errors.all());
-		return res.status(422).json(data);
-	}
-
-	next();
-}; 
+	},(err, status) => {
+		
+		if (!status) {
+			let data = apiValidationErrors(err.errors);
+			return res.status(422).json(data);
+        }   
+		next();
+    });
+};

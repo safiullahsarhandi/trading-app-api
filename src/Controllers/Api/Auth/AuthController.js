@@ -27,10 +27,15 @@ module.exports.register = async (req,res)=>{
 	let salt = bcrypt.genSaltSync(10);
 
 	req.body.password = bcrypt.hashSync(req.body.password,salt);
-	let user = await User.create(req.body);
-	// console.log(user);
-	let data = apiSuccess('Registered succesfully');
-	return res.json(data);
+	try{
+		
+		let user = await User.create(req.body);
+		let data = apiSuccess('Registered succesfully');
+		return res.json(data);
+	}catch(e){
+		console.log(e.errors[0].ValidationErrorItem)
+	}
+		// console.log(user);
 }
 
 module.exports.logout = async (req,res)=>{

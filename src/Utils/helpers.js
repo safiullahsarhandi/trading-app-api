@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const util = require('util'); 
 module.exports = {
     async generateHash(password,salt = 10){
        return await bcrypt.hash(password,salt); 
@@ -41,6 +42,14 @@ module.exports = {
             parts[random] = temp;
         }
         return parts.join('');
+    },
+    formatError(error){
+      return {
+        error: { ...error.data, status_code: error.status },
+      };
+    },
+    prettyPrintResponse(response){
+      console.log(util.inspect(response.data, { colors: true, depth: 4 }));
     }
     
     

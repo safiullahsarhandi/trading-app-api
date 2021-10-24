@@ -28,6 +28,10 @@ const routes = [
 		prefix : 'api/subscription',
 		route : require('./Api/Subscription'),
 	},
+	{
+		prefix : 'api/plaid',
+		route : require('./Api/Plaid'),
+	},
 
 
 ];
