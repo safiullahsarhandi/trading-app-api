@@ -1,4 +1,5 @@
-require('dotenv').config({path: path.resolve(__dirname,'../.env')})
+const path = require('path');
+require('dotenv').config()
 require('./src/app.js');
 
 var pathAlias = require('path-alias');
