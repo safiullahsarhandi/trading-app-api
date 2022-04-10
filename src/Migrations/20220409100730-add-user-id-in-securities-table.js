@@ -8,10 +8,11 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-    await queryInterface.addColumn('users','subscription_price',{
+    await queryInterface.addColumn('securities','user_id',{
       type : Sequelize.BIGINT,
-      defaultValue : 0,
-      after : 'is_trader'
+      allowNull : true,
+      after : 'id',
+      
     });
   },
 
@@ -22,6 +23,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-    await queryInterface.removeColumn('users','subscription_price');
+    await queryInterface.removeColumn('securities','user_id');
   }
 };

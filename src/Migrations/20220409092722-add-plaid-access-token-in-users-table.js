@@ -8,23 +8,18 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-    await queryInterface.createTable('bookmarks',{
-      id : {
-        autoIncrement : true,
-        primaryKey : true,
-        type : Sequelize.BIGINT
-      },
-      user_id : {
-        type : Sequelize.BIGINT,
+    Promise.all([
+      queryInterface.addColumn('users','plaid_access_token',{
+        type : Sequelize.STRING,
         allowNull : true,
-      },
-      bookmarked_id : {
-        type : Sequelize.BIGINT,
+        after : 'status'
+      }),
+      queryInterface.addColumn('users','plaid_item_id',{
+        type : Sequelize.STRING,
         allowNull : true,
-      },
-      created_at : Sequelize.DATE,
-      updated_at : Sequelize.DATE,
-    });
+        after : 'plaid_access_token',
+      })
+    ])
   },
 
   down: async (queryInterface, Sequelize) => {
@@ -34,6 +29,10 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-    await queryInterface.dropTable('bookmarks');
+    
+    Promise.all([
+      queryInterface.removeColumn('users','plaid_access_token'),
+      queryInterface.removeColumn('users','plaid_access_token'),
+    ]);
   }
 };

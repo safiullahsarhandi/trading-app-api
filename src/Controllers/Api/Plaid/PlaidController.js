@@ -1,11 +1,13 @@
 
 const {client, PLAID_PRODUCTS,PLAID_COUNTRY_CODES} = require('../../../Services/PlaidApi');
 const { getAccessToken, formatError, prettyPrintResponse } = require('../../../Utils/helpers');
-
+const {User,Holding,Security,Account,sequelize} = require('../../../Models');
+// const sequelize = require('sequelize');
 /* 
  */
 
 module.exports.getPlaidInfo = (request, response) => {
+  
         let ITEM_ID;
         let ACCESS_TOKEN;
         if(request.headers['authorization']){
@@ -55,7 +57,11 @@ module.exports.createLinkToken =  async (request, response) => {
   }
 
 module.exports.setAccessToken = async (request, response) => {
-    PUBLIC_TOKEN = request.body.public_token;
+  PUBLIC_TOKEN = request.body.public_token;
+
+  user_id = request.body.user_id;
+  user = await User.findByPk(user_id);
+  
     try {
       const tokenResponse = await client.itemPublicTokenExchange({
         public_token: PUBLIC_TOKEN,
@@ -63,17 +69,50 @@ module.exports.setAccessToken = async (request, response) => {
       prettyPrintResponse(tokenResponse);
       let access_token = tokenResponse.data.access_token;
       let item_id = tokenResponse.data.item_id;
+      user.plaid_access_token = access_token;
+      user.plaid_item_id = item_id;
+      user.is_trader = true;
+      await user.save();
       let transfer_id;
       if (PLAID_PRODUCTS.includes('transfer')) {
         transfer_id = await authorizeAndCreateTransfer(access_token);
       }
-      response.json({
-        access_token,
-        item_id,
-        error: null,
+
+      Promise.resolve()
+      .then(async function () {
+        const holdingsResponse = await client.investmentsHoldingsGet({
+          access_token,
+        });
+        let {data: holdings} = holdingsResponse;
+        let {holdings : holdingsData,securities,accounts} = holdings;
+        sequelize.transaction(async (transaction)=>{
+            let promises = [];
+            accounts.forEach(async (account)=>{
+              promises.push(Account.create({
+                user_id,
+                ...account,
+              },{transaction}));
+            });
+            securities.forEach(async (security)=>{
+              promises.push(Security.create({
+                user_id,
+                ...security,
+              },{transaction}));
+            });
+            
+            holdingsData.forEach(async (holding)=>{
+              promises.push(Holding.create({
+                user_id,
+                ...holding,
+              },{transaction}));
+              
+            });
+            return Promise.all(promises);
+          });
+        response.json({message : 'authentication performed successfully',status : true})
       });
     } catch (error) {
-    //   prettyPrintResponse(error.response);
+      console.log('api error',error);
       return response.json(formatError(error.response));
     }
 };

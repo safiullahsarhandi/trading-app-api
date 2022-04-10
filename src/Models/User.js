@@ -22,6 +22,12 @@ module.exports = (sequelize, DataTypes) => {
     status: {
       type: DataTypes.STRING
     },
+    plaid_access_token: {
+      type: DataTypes.STRING
+    },
+    plaid_item_id: {
+      type: DataTypes.STRING
+    },
     is_trader: {
       type: DataTypes.BOOLEAN
     },
@@ -44,9 +50,11 @@ module.exports = (sequelize, DataTypes) => {
   });
   let Review = sequelize.model('Review');
   let Subscriber = sequelize.model('Subscriber');
+  let Holding = sequelize.model('Holding');
   User.belongsToMany(User,{through : 'bookmarks',foreignKey : 'user_id', otherKey : 'bookmarked_id',as : 'Bookmarks' });
   User.hasMany(Review,{foreignKey : 'user_id',as : 'reviews', otherKey : 'reviewed_by' });
   User.belongsToMany(User,{through : 'subscribers',foreignKey : 'user_id',as : 'Subscribers', otherKey : 'subscriber_id' });
+  User.hasMany(Holding,{foreignKey : 'user_id',as : 'holdings', otherKey : 'id' });
   
   sequelizePaginate.paginate(User);
   

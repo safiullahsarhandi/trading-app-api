@@ -8,10 +8,9 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-    await queryInterface.addColumn('users','subscription_price',{
-      type : Sequelize.BIGINT,
-      defaultValue : 0,
-      after : 'is_trader'
+    await queryInterface.changeColumn('holdings','institution_price_as_of',{
+      type : Sequelize.STRING,
+      allowNull : true,
     });
   },
 
@@ -22,6 +21,5 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-    await queryInterface.removeColumn('users','subscription_price');
   }
 };
