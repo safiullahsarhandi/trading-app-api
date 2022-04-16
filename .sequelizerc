@@ -1,5 +1,4 @@
 const path = require('path');
-
 module.exports = {
   'env' : 'development',
   'config': path.resolve('./src/Config', 'database.json'),
